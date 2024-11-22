@@ -13,6 +13,7 @@
 #include <util/delay.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "../config/cfg_system.h"
 #include "../config/cfg_debug.h"

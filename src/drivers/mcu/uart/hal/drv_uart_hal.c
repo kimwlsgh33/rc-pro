@@ -1,5 +1,6 @@
 #include "drv_uart_hal.h"
 #include "../../../../config/cfg_build.h"
+#include "../common/drv_uart_common.h"
 #include "drv_uart_hw.h"
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -10,6 +11,7 @@ static struct {
   void (*rx_callback)(uint8_t);
   void (*tx_callback)(void);
   void (*error_callback)(uint16_t);
+  void (*tx_complete_callback)(void);
 } uart_callbacks[UART_PORT_MAX] = {0};
 
 /**
@@ -110,6 +112,7 @@ error_code_t uart_hal_deinit(uart_port_t port)
   uart_callbacks[port].rx_callback    = NULL;
   uart_callbacks[port].tx_callback    = NULL;
   uart_callbacks[port].error_callback = NULL;
+  uart_callbacks[port].tx_complete_callback = NULL;
 
   return ERR_SUCCESS;
 }
@@ -124,6 +127,7 @@ error_code_t uart_hal_write_byte(uart_port_t port, uint8_t byte)
   while (!(*uart_registers[port].UCSRnA & UART_UCSRA_UDRE))
     ;
 
+  // Write byte to data register
   *uart_registers[port].UDRn = byte;
   return ERR_SUCCESS;
 }
@@ -145,17 +149,30 @@ error_code_t uart_hal_read_byte(uart_port_t port, uint8_t *byte)
     return ERR_HARDWARE;
   }
 
+  // Read byte from data register
   *byte = *uart_registers[port].UDRn;
   return ERR_SUCCESS;
 }
 
+error_code_t uart_hal_enable_udre_interrupt(uart_port_t port)
+{
+    if (port >= UART_PORT_MAX) {
+        return ERR_INVALID_PARAM;
+    }
+
+    *uart_registers[port].UCSRnB |= UART_UCSRB_UDRIE;
+    return ERR_SUCCESS;
+}
+
 void uart_hal_set_callbacks(uart_port_t port, void (*rx_callback)(uint8_t),
-                            void (*tx_callback)(void), void (*error_callback)(uint16_t))
+                          void (*tx_callback)(void), void (*error_callback)(uint16_t),
+                          void (*tx_complete_callback)(void))
 {
   if (port < UART_PORT_MAX) {
-    uart_callbacks[port].rx_callback    = rx_callback;
-    uart_callbacks[port].tx_callback    = tx_callback;
+    uart_callbacks[port].rx_callback = rx_callback;
+    uart_callbacks[port].tx_callback = tx_callback;
     uart_callbacks[port].error_callback = error_callback;
+    uart_callbacks[port].tx_complete_callback = tx_complete_callback;
   }
 }
 
@@ -177,5 +194,12 @@ void uart_hal_handle_error(uart_port_t port, uint16_t error)
 {
   if (port < UART_PORT_MAX && uart_callbacks[port].error_callback) {
     uart_callbacks[port].error_callback(error);
+  }
+}
+
+void uart_hal_handle_tx_complete(uart_port_t port)
+{
+  if (port < UART_PORT_MAX && uart_callbacks[port].tx_complete_callback) {
+    uart_callbacks[port].tx_complete_callback();
   }
 }

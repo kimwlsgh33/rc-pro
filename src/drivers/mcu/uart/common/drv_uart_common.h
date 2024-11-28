@@ -1,22 +1,69 @@
 /**
  * @file drv_uart_common.h
- * @brief Common UART driver functionality
+ * @brief Common UART driver functionality and types
  */
 
 #ifndef DRV_UART_COMMON_H
 #define DRV_UART_COMMON_H
 
 #include "drv_uart_types.h"
-#include <stdbool.h>
+#include "../../../../utils/common/ring_buffer.h"
 
 /**
- * @brief Initialize a UART buffer
+ * @brief UART buffer management structure
+ * 
+ * Contains separate ring buffers for transmit and receive operations,
+ * along with their associated data storage and status flags.
+ */
+typedef struct {
+    ring_buffer_t tx_buffer;       // Transmit ring buffer
+    ring_buffer_t rx_buffer;       // Receive ring buffer
+    uint8_t *tx_buffer_data;       // Transmit buffer memory
+    uint8_t *rx_buffer_data;       // Receive buffer memory
+    volatile bool tx_busy;         // Transmit busy flag
+    volatile bool rx_busy;         // Receive busy flag
+} uart_buffer_t;
+
+/**
+ * @brief Initialize UART buffer
  * 
  * @param buffer Buffer structure to initialize
- * @param data Buffer data array
- * @param size Size of the buffer
+ * @param tx_data Transmit buffer memory
+ * @param rx_data Receive buffer memory
+ * @param buffer_size Size of each buffer
+ * @return error_code_t ERR_SUCCESS if successful
  */
-void uart_buffer_init(uart_buffer_t *buffer, uint8_t *data, uint16_t size);
+error_code_t uart_buffer_init(uart_buffer_t *buffer,
+                            uint8_t *tx_data,
+                            uint8_t *rx_data,
+                            uint16_t buffer_size);
+
+/**
+ * @brief Get next byte from transmit buffer
+ * 
+ * @param buffer Buffer to get byte from
+ * @param byte Pointer to store byte
+ * @return true if byte retrieved
+ */
+bool uart_buffer_get_tx_byte(uart_buffer_t *buffer, uint8_t *byte);
+
+/**
+ * @brief Add byte to transmit buffer
+ * 
+ * @param buffer Buffer to add byte to
+ * @param byte Byte to add
+ * @return error_code_t ERR_SUCCESS if successful
+ */
+error_code_t uart_buffer_add_tx_byte(uart_buffer_t *buffer, uint8_t byte);
+
+/**
+ * @brief Store received byte in buffer
+ * 
+ * @param buffer Buffer to store byte in
+ * @param byte Byte to store
+ * @return error_code_t ERR_SUCCESS if successful
+ */
+error_code_t uart_buffer_store_rx_byte(uart_buffer_t *buffer, uint8_t byte);
 
 /**
  * @brief Write a byte to the buffer

@@ -16,7 +16,12 @@ uart/
 ├── core/
 │   ├── drv_uart.h          # Unified UART interface
 │   └── drv_uart.c          # Core UART driver logic
-└── implementations/
+└── impl/
+    ├── avr/
+    │   ├── drv_uart_avr.h     # AVR-specific implementation interface
+    │   ├── drv_uart_avr.c     # AVR-specific implementation
+    │   ├── drv_uart_avr_isr.h # AVR-specific interrupt service routines interface
+    │   └── drv_uart_avr_isr.c # AVR-specific interrupt service routines
     ├── drv_uart1.h         # UART1 interface
     ├── drv_uart1.c         # UART1 implementation
     ├── drv_uart2.h         # UART2 interface

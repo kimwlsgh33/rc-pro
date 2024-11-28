@@ -18,39 +18,6 @@
 #include <string.h>
 #include <util/atomic.h>
 
-// Hardware register definitions for each UART port
-static const uart_registers_t uart_registers[] = {
-    // UART1
-    {.UDRn   = &UDR1,
-     .UCSRnA = &UCSR1A,
-     .UCSRnB = &UCSR1B,
-     .UCSRnC = &UCSR1C,
-     .UBRRnH = &UBRR1H,
-     .UBRRnL = &UBRR1L,
-     .RXCIEn = (1 << RXCIE1),
-     .TXCIEn = (1 << TXCIE1),
-     .UDRIEn = (1 << UDRIE1)},
-    // UART2
-    {.UDRn   = &UDR2,
-     .UCSRnA = &UCSR2A,
-     .UCSRnB = &UCSR2B,
-     .UCSRnC = &UCSR2C,
-     .UBRRnH = &UBRR2H,
-     .UBRRnL = &UBRR2L,
-     .RXCIEn = (1 << RXCIE2),
-     .TXCIEn = (1 << TXCIE2),
-     .UDRIEn = (1 << UDRIE2)},
-    // UART3
-    {.UDRn   = &UDR3,
-     .UCSRnA = &UCSR3A,
-     .UCSRnB = &UCSR3B,
-     .UCSRnC = &UCSR3C,
-     .UBRRnH = &UBRR3H,
-     .UBRRnL = &UBRR3L,
-     .RXCIEn = (1 << RXCIE3),
-     .TXCIEn = (1 << TXCIE3),
-     .UDRIEn = (1 << UDRIE3)}};
-
 // UART instances
 uart_instance_t uart_instances[UART_PORT_MAX];
 

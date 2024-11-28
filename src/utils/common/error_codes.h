@@ -21,29 +21,33 @@ typedef uint16_t error_code_t;
 typedef uint8_t error_category_t;
 
 /* Configuration constants */
-#define MAX_ERROR_HISTORY           5    /* Maximum number of errors to store */
-#define MAX_RECOVERY_ATTEMPTS       3    /* Maximum recovery attempts per error */
-#define CRITICAL_RETRY_THRESHOLD    3    /* Retries before critical failure */
-#define CONSECUTIVE_ERROR_THRESHOLD 3    /* Consecutive errors before escalation */
-#define MAX_RECOVERY_TIMEOUT_MS     1000 /* Maximum time to wait for recovery */
-#define MIN_RECOVERY_INTERVAL_MS    100  /* Minimum time between recovery attempts */
-#define RECOVERY_BACKOFF_FACTOR     2    /* Exponential backoff factor for retries */
-#define MAX_CONSECUTIVE_RECOVERIES  3    /* Maximum consecutive recovery attempts */
+#define MAX_ERROR_HISTORY        5 /* Maximum number of errors to store */
+#define MAX_RECOVERY_ATTEMPTS    3 /* Maximum recovery attempts per error */
+#define CRITICAL_RETRY_THRESHOLD 3 /* Retries before critical failure */
+#define CONSECUTIVE_ERROR_THRESHOLD                                                                                                                  \
+  3                                   /* Consecutive errors before escalation                                                                        \
+                                       */
+#define MAX_RECOVERY_TIMEOUT_MS  1000 /* Maximum time to wait for recovery */
+#define MIN_RECOVERY_INTERVAL_MS 100  /* Minimum time between recovery attempts */
+#define RECOVERY_BACKOFF_FACTOR  2    /* Exponential backoff factor for retries */
+#define MAX_CONSECUTIVE_RECOVERIES                                                                                                                   \
+  3 /* Maximum consecutive recovery attempts                                                                                                         \
+     */
 
 /**
  * @brief Error category definitions (high 4 bits: 0xX0)
  * Each category must be unique and a multiple of 0x10
  */
-#define ERR_CAT_SUCCESS       0x00 /* Success/no error */
-#define ERR_CAT_COMMON        0x10 /* Common errors */
-#define ERR_CAT_SENSOR        0x20 /* Sensor-related errors */
-#define ERR_CAT_MOTOR         0x40 /* Motor-related errors */
-#define ERR_CAT_DOOR          0x50 /* Door-related errors */
-#define ERR_CAT_SYSTEM        0x70 /* System-level errors */
-#define ERR_CAT_DRIVER        0x80 /* Driver-related errors */
-#define ERR_CAT_PERIPHERAL    0x90 /* Peripheral errors */
-#define ERR_CAT_APPLICATION   0xA0 /* Application errors */
-#define ERR_CAT_CRITICAL      0xF0 /* Critical errors */
+#define ERR_CAT_SUCCESS     0x00 /* Success/no error */
+#define ERR_CAT_COMMON      0x10 /* Common errors */
+#define ERR_CAT_SENSOR      0x20 /* Sensor-related errors */
+#define ERR_CAT_MOTOR       0x40 /* Motor-related errors */
+#define ERR_CAT_DOOR        0x50 /* Door-related errors */
+#define ERR_CAT_SYSTEM      0x70 /* System-level errors */
+#define ERR_CAT_DRIVER      0x80 /* Driver-related errors */
+#define ERR_CAT_PERIPHERAL  0x90 /* Peripheral errors */
+#define ERR_CAT_APPLICATION 0xA0 /* Application errors */
+#define ERR_CAT_CRITICAL    0xF0 /* Critical errors */
 
 /* Error category bit manipulation */
 #define ERR_CAT_SHIFT     4      /* Shift amount to get category from error code */
@@ -53,15 +57,14 @@ typedef uint8_t error_category_t;
 
 /* Error code helper macros */
 #define MAKE_ERROR_CODE(category, specific) ((category) | (specific))
-#define GET_ERROR_SEVERITY(category)                                                               \
-  ((category) >= ERR_CAT_CRITICAL ? ERR_SEV_CRITICAL                                               \
-   : (category) >= ERR_CAT_SYSTEM ? ERR_SEV_NORMAL                                                 \
-   : (category) >= ERR_CAT_COMMON ? ERR_SEV_WARNING                                                \
+#define GET_ERROR_SEVERITY(category)                                                                                                                 \
+  ((category) >= ERR_CAT_CRITICAL ? ERR_SEV_CRITICAL                                                                                                 \
+   : (category) >= ERR_CAT_SYSTEM ? ERR_SEV_NORMAL                                                                                                   \
+   : (category) >= ERR_CAT_COMMON ? ERR_SEV_WARNING                                                                                                  \
                                   : ERR_SEV_INFO)
 
 /* Error code validation */
-#define IS_VALID_ERROR_CODE(code)                                                                  \
-  (IS_VALID_ERROR_CATEGORY(((code) >> ERR_CAT_SHIFT) & ERR_CAT_MASK))
+#define IS_VALID_ERROR_CODE(code)    (IS_VALID_ERROR_CATEGORY(((code) >> ERR_CAT_SHIFT) & ERR_CAT_MASK))
 #define IS_VALID_ERROR_CATEGORY(cat) (((cat) <= ERR_CAT_MAX) && (((cat) & 0x0F) == 0))
 
 /* Error severity strings for logging */
@@ -74,29 +77,35 @@ extern const char *const ERROR_SEVERITY_STRINGS[];
 /**
  * @brief Common error codes (0x10-0x1F)
  */
-#define ERR_SUCCESS              0x00                     /* Operation successful */
-#define ERR_INVALID_PARAM        (ERR_CAT_COMMON | 0x01) /* Invalid parameter */
-#define ERR_NOT_INIT            (ERR_CAT_COMMON | 0x02) /* Not initialized */
-#define ERR_NO_RESOURCE         (ERR_CAT_COMMON | 0x03) /* No resource available */
-#define ERR_ALREADY_EXISTS      (ERR_CAT_COMMON | 0x04) /* Already exists */
-#define ERR_NOT_FOUND          (ERR_CAT_COMMON | 0x05) /* Not found */
-#define ERR_OUT_OF_MEMORY      (ERR_CAT_COMMON | 0x06) /* Memory allocation failed */
-#define ERR_TIMEOUT            (ERR_CAT_COMMON | 0x07) /* Operation timed out */
-#define ERR_BUSY              (ERR_CAT_COMMON | 0x08) /* Resource busy */
-#define ERR_NOT_SUPPORTED     (ERR_CAT_COMMON | 0x09) /* Not supported */
-#define ERR_INVALID_STATE     (ERR_CAT_COMMON | 0x0A) /* Invalid state */
-#define ERR_OVERFLOW          (ERR_CAT_COMMON | 0x0B) /* Overflow */
-#define ERR_UNDERFLOW         (ERR_CAT_COMMON | 0x0C) /* Underflow */
-#define ERR_BUFFER_FULL       (ERR_CAT_COMMON | 0x0D) /* Buffer full */
-#define ERR_ALREADY_INIT      (ERR_CAT_COMMON | 0x0E) /* Already initialized */
-#define ERR_INIT_FAILED       (ERR_CAT_COMMON | 0x0F) /* Initialization failed */
+#define ERR_SUCCESS        0x00                    /* Operation successful */
+#define ERR_INVALID_PARAM  (ERR_CAT_COMMON | 0x01) /* Invalid parameter */
+#define ERR_NOT_INIT       (ERR_CAT_COMMON | 0x02) /* Not initialized */
+#define ERR_NO_RESOURCE    (ERR_CAT_COMMON | 0x03) /* No resource available */
+#define ERR_ALREADY_EXISTS (ERR_CAT_COMMON | 0x04) /* Already exists */
+#define ERR_NOT_FOUND      (ERR_CAT_COMMON | 0x05) /* Not found */
+#define ERR_OUT_OF_MEMORY                                                                                                                            \
+  (ERR_CAT_COMMON | 0x06)                         /* Memory allocation failed                                                                        \
+                                                   */
+#define ERR_TIMEOUT       (ERR_CAT_COMMON | 0x07) /* Operation timed out */
+#define ERR_BUSY          (ERR_CAT_COMMON | 0x08) /* Resource busy */
+#define ERR_NOT_SUPPORTED (ERR_CAT_COMMON | 0x09) /* Not supported */
+#define ERR_INVALID_STATE (ERR_CAT_COMMON | 0x0A) /* Invalid state */
+#define ERR_OVERFLOW      (ERR_CAT_COMMON | 0x0B) /* Overflow */
+#define ERR_UNDERFLOW     (ERR_CAT_COMMON | 0x0C) /* Underflow */
+#define ERR_BUFFER_FULL   (ERR_CAT_COMMON | 0x0D) /* Buffer full */
+#define ERR_ALREADY_INIT  (ERR_CAT_COMMON | 0x0E) /* Already initialized */
+#define ERR_INIT_FAILED   (ERR_CAT_COMMON | 0x0F) /* Initialization failed */
 
 /**
  * @brief Motor error codes (0x40-0x4F)
  */
-#define ERR_MOTOR_STALL       (ERR_CAT_MOTOR | 0x01) /* Motor stall detected */
-#define ERR_MOTOR_OVERCURRENT (ERR_CAT_MOTOR | 0x02) /* Overcurrent detected */
-#define ERR_MOTOR_OVERTEMP    (ERR_CAT_MOTOR | 0x03) /* Overtemperature detected */
+#define ERR_MOTOR_STALL (ERR_CAT_MOTOR | 0x01) /* Motor stall detected */
+#define ERR_MOTOR_OVERCURRENT                                                                                                                        \
+  (ERR_CAT_MOTOR | 0x02) /* Overcurrent detected                                                                                                     \
+                          */
+#define ERR_MOTOR_OVERTEMP                                                                                                                           \
+  (ERR_CAT_MOTOR | 0x03)                             /* Overtemperature detected                                                                     \
+                                                      */
 #define ERR_MOTOR_POSITION    (ERR_CAT_MOTOR | 0x04) /* Position error */
 #define ERR_MOTOR_LIMIT       (ERR_CAT_MOTOR | 0x05) /* Limit switch triggered */
 #define ERR_MOTOR_COMM        (ERR_CAT_MOTOR | 0x06) /* Communication error */
@@ -119,8 +128,9 @@ extern const char *const ERROR_SEVERITY_STRINGS[];
 #define ERR_UART_NOISE        ((ERR_CAT_PERIPHERAL | ERR_BASE_OFFSET) | 0x07) /* Noise detected */
 #define ERR_UART_BREAK        ((ERR_CAT_PERIPHERAL | ERR_BASE_OFFSET) | 0x08) /* Break detected */
 #define ERR_UART_INVALID_PORT ((ERR_CAT_PERIPHERAL | ERR_BASE_OFFSET) | 0x09) /* Invalid port */
-#define ERR_UART_FLUSH_FAILED ((ERR_CAT_PERIPHERAL | ERR_BASE_OFFSET) | 0x0A) /* Flush failed */
-#define ERR_UART_REGS         ((ERR_CAT_PERIPHERAL | ERR_BASE_OFFSET) | 0x0B) /* Register error */
+#define ERR_UART_INVALID_BAUD ((ERR_CAT_PERIPHERAL | ERR_BASE_OFFSET) | 0x0A) /* Invalid baud rate */
+#define ERR_UART_FLUSH_FAILED ((ERR_CAT_PERIPHERAL | ERR_BASE_OFFSET) | 0x0B) /* Flush failed */
+#define ERR_UART_REGS         ((ERR_CAT_PERIPHERAL | ERR_BASE_OFFSET) | 0x0C) /* Register error */
 
 /**
  * @brief Clock error codes (0x901-0x90F)
@@ -131,48 +141,58 @@ extern const char *const ERROR_SEVERITY_STRINGS[];
  * @brief Timer error codes (0x701-0x740)
  */
 /* Core timer errors (0x701-0x710) */
-#define ERR_TIMER_INVALID_ID     ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x01) /* Invalid ID */
-#define ERR_TIMER_NOT_ALLOC      ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x02) /* Not allocated */
-#define ERR_TIMER_ALLOC_FAILED   ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x03) /* Allocation failed */
-#define ERR_TIMER_BUSY           ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x04) /* Busy */
-#define ERR_TIMER_NOT_RUNNING    ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x05) /* Not running */
+#define ERR_TIMER_INVALID_ID   ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x01) /* Invalid ID */
+#define ERR_TIMER_NOT_ALLOC    ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x02) /* Not allocated */
+#define ERR_TIMER_ALLOC_FAILED ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x03) /* Allocation failed */
+#define ERR_TIMER_BUSY         ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x04) /* Busy */
+#define ERR_TIMER_NOT_RUNNING  ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x05) /* Not running */
 
 /* Timer configuration errors (0x711-0x720) */
-#define ERR_TIMER_INVALID_MODE     ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x11) /* Invalid mode */
-#define ERR_TIMER_INVALID_DIV      ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x12) /* Invalid prescaler */
-#define ERR_TIMER_INVALID_PERIOD   ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x13) /* Invalid period */
-#define ERR_TIMER_INVALID_COMPARE  ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x14) /* Invalid compare */
+#define ERR_TIMER_INVALID_MODE   ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x11) /* Invalid mode */
+#define ERR_TIMER_INVALID_DIV    ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x12) /* Invalid prescaler */
+#define ERR_TIMER_INVALID_PERIOD ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x13) /* Invalid period */
+#define ERR_TIMER_INVALID_COMPARE                                                                                                                    \
+  ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x14)                                  /* Invalid compare                                                    \
+                                                                                */
 #define ERR_TIMER_INVALID_PRIORITY ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x15) /* Invalid priority */
 
 /* Timer PWM errors (0x721-0x730) */
-#define ERR_TIMER_INVALID_PWM      ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x21) /* Invalid PWM */
-#define ERR_TIMER_INVALID_CHANNEL  ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x22) /* Invalid channel */
+#define ERR_TIMER_INVALID_PWM ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x21) /* Invalid PWM */
+#define ERR_TIMER_INVALID_CHANNEL                                                                                                                    \
+  ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x22)                                  /* Invalid channel                                                    \
+                                                                                */
 #define ERR_TIMER_INVALID_DUTY     ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x23) /* Invalid duty */
 #define ERR_TIMER_INVALID_ALIGN    ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x24) /* Invalid align */
 #define ERR_TIMER_INVALID_DEADTIME ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x25) /* Invalid deadtime */
 
 /* Timer runtime errors (0x731-0x740) */
-#define ERR_TIMER_CALLBACK_FAILED  ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x31) /* Callback failed */
-#define ERR_TIMER_OVERFLOW         ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x32) /* Overflow */
-#define ERR_TIMER_RECOVERY_FAILED  ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x33) /* Recovery failed */
+#define ERR_TIMER_CALLBACK_FAILED                                                                                                                    \
+  ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x31)                          /* Callback failed                                                            \
+                                                                        */
+#define ERR_TIMER_OVERFLOW ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x32) /* Overflow */
+#define ERR_TIMER_RECOVERY_FAILED                                                                                                                    \
+  ((ERR_CAT_DRIVER | ERR_BASE_OFFSET) | 0x33) /* Recovery failed                                                                                     \
+                                               */
 
 /**
  * @brief Peripheral error codes (0xB01-0xB0F)
  */
-#define ERR_PERIPHERAL_DISABLE     ((ERR_CAT_PERIPHERAL | 0x300) | 0x01) /* Disable failed */
-#define ERR_PERIPHERAL_EEPROM      ((ERR_CAT_PERIPHERAL | 0x300) | 0x02) /* EEPROM error */
-#define ERR_HARDWARE              ((ERR_CAT_PERIPHERAL | 0x300) | 0x03) /* Hardware error */
+#define ERR_PERIPHERAL_DISABLE ((ERR_CAT_PERIPHERAL | 0x300) | 0x01) /* Disable failed */
+#define ERR_PERIPHERAL_EEPROM  ((ERR_CAT_PERIPHERAL | 0x300) | 0x02) /* EEPROM error */
+#define ERR_HARDWARE                                                                                                                                 \
+  ((ERR_CAT_PERIPHERAL | 0x300) | 0x03) /* Hardware error                                                                                            \
+                                         */
 
 /**
  * @brief Module error codes (0x901-0x90F)
  */
-#define ERR_MODULE_NOT_FOUND      (ERR_CAT_APPLICATION | ERR_NOT_FOUND)  /* Not found */
-#define ERR_MODULE_EXISTS         (ERR_CAT_APPLICATION | ERR_ALREADY_EXISTS) /* Already exists */
-#define ERR_MODULE_STARTED        (ERR_CAT_APPLICATION | 0x03) /* Started */
-#define ERR_MODULE_NOT_STARTED    (ERR_CAT_APPLICATION | 0x04) /* Not started */
-#define ERR_MODULE_DEP_EXISTS     (ERR_CAT_APPLICATION | 0x05) /* Dep exists */
-#define ERR_MODULE_NO_RESOURCE    (ERR_CAT_APPLICATION | ERR_NO_RESOURCE) /* No resource */
-#define ERR_MODULE_UNSUPPORTED    (ERR_CAT_APPLICATION | ERR_NOT_SUPPORTED) /* Not supported */
+#define ERR_MODULE_NOT_FOUND   (ERR_CAT_APPLICATION | ERR_NOT_FOUND)      /* Not found */
+#define ERR_MODULE_EXISTS      (ERR_CAT_APPLICATION | ERR_ALREADY_EXISTS) /* Already exists */
+#define ERR_MODULE_STARTED     (ERR_CAT_APPLICATION | 0x03)               /* Started */
+#define ERR_MODULE_NOT_STARTED (ERR_CAT_APPLICATION | 0x04)               /* Not started */
+#define ERR_MODULE_DEP_EXISTS  (ERR_CAT_APPLICATION | 0x05)               /* Dep exists */
+#define ERR_MODULE_NO_RESOURCE (ERR_CAT_APPLICATION | ERR_NO_RESOURCE)    /* No resource */
+#define ERR_MODULE_UNSUPPORTED (ERR_CAT_APPLICATION | ERR_NOT_SUPPORTED)  /* Not supported */
 
 /**
  * @brief Critical error codes (0xFX)
@@ -278,38 +298,35 @@ typedef struct {
 } error_stats_t;
 
 /* Error handling helper macros */
-#define ERROR_LOCATION() __FILE__ ":" STRINGIFY(__LINE__)
-#define ERROR_RECORD_EXTENDED(code, sev, flg, desc)                                                \
-  error_record_extended(code, sev, flg, desc, ERROR_LOCATION())
+#define ERROR_LOCATION()                            __FILE__ ":" STRINGIFY(__LINE__)
+#define ERROR_RECORD_EXTENDED(code, sev, flg, desc) error_record_extended(code, sev, flg, desc, ERROR_LOCATION())
 
 /* Error record access helpers */
 #define GET_ERROR_RECORD(history, idx)    (&(history)->history[(idx) % MAX_ERROR_HISTORY])
 #define GET_CURRENT_ERROR_RECORD(history) GET_ERROR_RECORD(history, (history)->current_index)
 
 /* Error severity helpers */
-#define IS_CRITICAL_ERROR(category) ((category) >= ERR_CAT_CRITICAL)
-#define GET_DEFAULT_SEVERITY(category)                                                             \
-  (IS_CRITICAL_ERROR(category) ? ERR_SEV_CRITICAL : ERR_SEV_ERROR)
+#define IS_CRITICAL_ERROR(category)    ((category) >= ERR_CAT_CRITICAL)
+#define GET_DEFAULT_SEVERITY(category) (IS_CRITICAL_ERROR(category) ? ERR_SEV_CRITICAL : ERR_SEV_ERROR)
 
 /* Error category helpers */
 #define GET_ERROR_CATEGORY(code) ((error_category_t)(((code) >> ERR_CAT_SHIFT) & ERR_CAT_MASK))
 
 /* Error code validation enhancements */
 #define IS_ERROR_IN_CATEGORY(code, category) (((code) & ERR_CAT_MASK) == (category))
-#define IS_RECOVERABLE_ERROR(code) (!IS_CRITICAL_ERROR((code) & ERR_CAT_MASK))
-#define HAS_HIGHER_SEVERITY(code1, code2) \
-    (GET_ERROR_SEVERITY((code1) & ERR_CAT_MASK) > GET_ERROR_SEVERITY((code2) & ERR_CAT_MASK))
+#define IS_RECOVERABLE_ERROR(code)           (!IS_CRITICAL_ERROR((code) & ERR_CAT_MASK))
+#define HAS_HIGHER_SEVERITY(code1, code2)    (GET_ERROR_SEVERITY((code1) & ERR_CAT_MASK) > GET_ERROR_SEVERITY((code2) & ERR_CAT_MASK))
 
 /**
  * @brief Error context structure for detailed error information
  */
 typedef struct {
-    error_code_t code;           /* The error code */
-    const char* file;           /* Source file where error occurred */
-    int line;                   /* Line number where error occurred */
-    const char* function;       /* Function where error occurred */
-    uint32_t timestamp;         /* Time when error occurred */
-    void* additional_context;   /* Optional additional context */
+  error_code_t code;        /* The error code */
+  const char *file;         /* Source file where error occurred */
+  int line;                 /* Line number where error occurred */
+  const char *function;     /* Function where error occurred */
+  uint32_t timestamp;       /* Time when error occurred */
+  void *additional_context; /* Optional additional context */
 } error_context_t;
 
 /**
@@ -320,15 +337,14 @@ typedef struct {
  * @param function Function name
  * @return Populated error context
  */
-error_context_t error_create_context(error_code_t code, const char* file, 
-                                   int line, const char* function);
+error_context_t error_create_context(error_code_t code, const char *file, int line, const char *function);
 
 /**
  * @brief Get human-readable error message
  * @param error_code Error code to translate
  * @return Constant string containing error message
  */
-const char* error_get_message(error_code_t error_code);
+const char *error_get_message(error_code_t error_code);
 
 /**
  * @brief Combine two error codes, keeping the higher severity
@@ -394,20 +410,14 @@ void error_print_status(void);
  * @param error_code Error code to get category from
  * @return Error category
  */
-static inline uint8_t error_get_category(error_code_t error_code)
-{
-  return (uint8_t)(error_code & 0xF0);
-}
+static inline uint8_t error_get_category(error_code_t error_code) { return (uint8_t)(error_code & 0xF0); }
 
 /**
  * @brief Get specific error from error code
  * @param error_code Error code to get specific error from
  * @return Specific error code
  */
-static inline uint8_t error_get_specific(error_code_t error_code)
-{
-  return (uint8_t)(error_code & 0x0F);
-}
+static inline uint8_t error_get_specific(error_code_t error_code) { return (uint8_t)(error_code & 0x0F); }
 
 /**
  * @brief Register an error callback
@@ -453,8 +463,7 @@ error_flags_t error_get_flags(error_code_t error_code);
  * @param description Error description string
  * @param location Error location (file:line)
  */
-void error_record_extended(error_code_t code, error_severity_t severity, error_flags_t flags,
-                           const char *description, const char *location);
+void error_record_extended(error_code_t code, error_severity_t severity, error_flags_t flags, const char *description, const char *location);
 
 #define ERR_CAT_COMMUNICATION 0x60 /* Communication errors */
 #define ERR_CAT_SYSTEM        0x70 /* System-level errors */

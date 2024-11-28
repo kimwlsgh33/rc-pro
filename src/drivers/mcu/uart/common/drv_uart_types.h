@@ -3,13 +3,20 @@
 #include "../../../../utils/common/error_codes.h"
 #include "../../../common/drv_interface.h"
 #include "../../../common/drv_types.h"
+#include "../../../../utils/common/ring_buffer.h"
 #include <stddef.h>
 #include <stdint.h>
 
 /**
  * @brief UART port enumeration
  */
-typedef enum { UART_PORT_1 = 0, UART_PORT_2, UART_PORT_3, UART_PORT_MAX } uart_port_t;
+typedef enum {
+    UART_PORT_0,
+    UART_PORT_1,
+    UART_PORT_2,
+    UART_PORT_3,
+    UART_PORT_MAX
+} uart_port_t;
 
 /**
  * @brief UART hardware registers structure
@@ -42,28 +49,16 @@ typedef struct {
 } uart_config_t;
 
 /**
- * @brief UART buffer management structure
+ * @brief UART status structure for tracking errors and counters
  */
 typedef struct {
-  uint8_t *data;
-  uint16_t size;
-  uint16_t head;
-  uint16_t tail;
-  uint16_t count;
-} uart_buffer_t;
-
-/**
- * @brief UART status structure
- */
-typedef struct {
-  driver_state_t state;    // Added state member
-  uint16_t error_count;    // Total error count
-  uint16_t framing_errors; // Framing error count
-  uint16_t overflow_count; // Buffer overflow count
-  uint16_t parity_errors;  // Parity error count
-  error_code_t last_error; // Last encountered error
-  uint16_t rx_count;       // Received bytes count
-  uint16_t tx_count;       // Transmitted bytes count
+    uint16_t error_count;     // Total number of errors
+    uint16_t framing_errors;  // Number of framing errors
+    uint16_t overflow_count;  // Number of buffer overflows
+    uint16_t parity_errors;   // Number of parity errors
+    uint16_t rx_count;        // Number of bytes received
+    uint16_t tx_count;        // Number of bytes transmitted
+    uint16_t last_error;      // Last error code
 } uart_status_t;
 
 /**

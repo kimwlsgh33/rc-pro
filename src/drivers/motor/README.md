@@ -16,7 +16,7 @@ motor/
 │   ├── drv_motor.h          # Unified motor interface
 │   ├── drv_motor.c          # Core driver logic
 │   └── drv_motor_config.h   # Configuration validation
-└── implementations/
+└── impl/
     ├── drv_motor_a.c        # Motor A implementation
     ├── drv_motor_b.c        # Motor B implementation
     └── drv_stepper.c        # Stepper motor implementation

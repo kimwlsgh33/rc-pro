@@ -1,1 +1,5 @@
 BreakBeforeBraces: WebKit
+AlignTrailingComments: true
+ColumnLimit: 100
+AlignConsecutiveMacros: true
+AlignConsecutiveAssignments: true

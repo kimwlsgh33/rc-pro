@@ -7,40 +7,35 @@
 #define MCU_CONFIG_H
 
 #include "mcu_types.h"
+#include "../../../utils/common/error_codes.h"
 #include "../../../config/cfg_hardware.h"
+#include "../timer/drv_timer.h"
 
 /**
- * @brief UART configuration structure
+ * @brief MCU UART basic configuration structure
  */
 typedef struct {
-    uint32_t baudrate;
-    uint8_t data_bits;
-    uint8_t stop_bits;
-    uint8_t parity;
-    uint8_t flow_control;
-    mcu_pin_config_t tx_pin;
-    mcu_pin_config_t rx_pin;
-    mcu_irq_priority_t irq_priority;
-} uart_config_t;
+    uint32_t baudrate;         // Basic baud rate setting
+    uint8_t data_bits;         // Basic data bits setting
+    uint8_t stop_bits;         // Basic stop bits setting
+    uint8_t parity;           // Basic parity setting
+    mcu_pin_config_t tx_pin;  // Hardware pin configuration
+    mcu_pin_config_t rx_pin;  // Hardware pin configuration
+    mcu_irq_priority_t irq_priority;  // Hardware interrupt priority
+} mcu_uart_config_t;
 
 /**
  * @brief Timer configuration structure
  */
-typedef struct {
-    uint32_t frequency;
-    uint16_t period;
-    uint8_t mode;
-    uint8_t prescaler;
-    mcu_irq_priority_t irq_priority;
-} timer_config_t;
+typedef timer_config_t mcu_timer_config_t;
 
 /**
  * @brief MCU peripheral configuration structure
  */
 typedef struct {
     union {
-        uart_config_t uart;
-        timer_config_t timer;
+        mcu_uart_config_t uart;
+        mcu_timer_config_t timer;
     };
 } mcu_peripheral_config_t;
 

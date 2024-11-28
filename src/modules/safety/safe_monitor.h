@@ -3,10 +3,8 @@
 
 #include "../../config/cfg_system.h"
 #include "../../config/cfg_hardware.h"
-#include "../../platform/common/plat_types.h"
 #include "../../utils/common/error_codes.h"
 #include "../../utils/debug/dbg_diagnostics.h"
-#include "../../core/module/mod_manager.h"
 #include "../../core/event/evt_manager.h"
 
 // Safety status flags
@@ -60,7 +58,7 @@ safety_status_t safety_get_system_status(void);
 void safety_configure_thresholds(safety_system_t system, const safety_threshold_t* thresholds);
 
 // Get safety statistics for a subsystem
-const safety_stats_t* safety_get_stats(safety_system_t system);
+safety_stats_t safety_get_stats(safety_system_t system);
 
 // Reset safety statistics for a subsystem
 void safety_reset_stats(safety_system_t system);
@@ -79,5 +77,21 @@ void safety_register_callback(safety_callback_t callback);
 void safety_trigger_emergency_stop(void);
 void safety_clear_emergency_stop(void);
 bool safety_is_emergency_stopped(void);
+
+/**
+ * @brief Trigger a critical safety event for a specific subsystem
+ * @param system The subsystem identifier (SAFETY_SYS_MECHANICAL, etc.)
+ * 
+ * This function:
+ * - Sets the subsystem status to SAFETY_CRITICAL
+ * - Updates safety statistics
+ * - Logs extended diagnostic information
+ * - Triggers emergency procedures if first critical error
+ */
+void safety_trigger_critical(safety_system_t system);
+
+// Safety state control
+void safety_trigger_warning(safety_system_t system);
+void safety_deinit(void);
 
 #endif // SAFE_MONITOR_H

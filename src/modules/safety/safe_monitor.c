@@ -1,8 +1,7 @@
-#include "safety_monitor.h"
-#include "error_handling.h"
-#include "power_management.h"
-#include "timer.h"
-#include "RC.h"
+#include "safe_monitor.h"
+#include <string.h>
+#include "../../drivers/mcu/timer/drv_timer1.h"
+#include "../../platform/avr/plat_avr.h"
 
 // Internal state tracking
 static struct {
@@ -421,10 +420,35 @@ void safety_trigger_warning(safety_system_t system)
 
 void safety_trigger_critical(safety_system_t system)
 {
-    safety_state.system_status[system] = SAFETY_CRITICAL;
-    safety_state.stats[system].total_criticals++;
-    safety_state.stats[system].last_critical_time = timer_get_ms();
-    safety_state.active_criticals++;
+    if (system >= SAFETY_SYS_COUNT) {
+        error_record(ERR_INVALID_PARAM);
+        return;
+    }
+
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        // Update system status
+        safety_state.system_status[system] = SAFETY_CRITICAL;
+        safety_state.stats[system].total_criticals++;
+        safety_state.stats[system].last_critical_time = timer_get_ms();
+        safety_state.active_criticals++;
+
+        // Log the critical event with extended diagnostics
+        uint16_t voltage = get_system_measurement(system);
+        int16_t temp = get_temperature();  // Assuming this function exists
+        uint16_t current = get_current();  // Assuming this function exists
+        log_safety_event_extended(SAFETY_CRITICAL, voltage, temp, current);
+
+        // Notify registered callback if any
+        if (safety_state.status_callback) {
+            safety_state.status_callback(system, SAFETY_CRITICAL);
+        }
+
+        // If this is the first critical error, trigger emergency procedures
+        if (safety_state.active_criticals == 1) {
+            safety_trigger_emergency_stop();
+            notify_emergency_stop();
+        }
+    }
 }
 
 // Internal helper function to get measurements for each subsystem

@@ -2,13 +2,14 @@
 #define MOD_MANAGER_H
 
 #include "../../config/cfg_system.h"
-#include "../../platform/common/plat_types.h"
 #include "../../utils/common/error_codes.h"
+#include "../event/evt_manager.h"
 #include "mod_interface.h"
 
 // Module Manager Configuration
 #define MAX_MODULES 32
 #define MODULE_NAME_MAX_LENGTH 32
+#define MAX_MODULE_DEPENDENCIES 8  // Maximum number of dependencies per module
 
 // Module Priority Levels
 typedef enum {
@@ -29,6 +30,20 @@ typedef enum {
     MODULE_CAT_DIAGNOSTIC,
     MODULE_CAT_CUSTOM
 } module_category_t;
+
+// Module Dependency Status
+typedef enum {
+    DEP_STATUS_NONE = 0,
+    DEP_STATUS_PENDING,
+    DEP_STATUS_SATISFIED,
+    DEP_STATUS_ERROR
+} dependency_status_t;
+
+// Module Dependency Info
+typedef struct {
+    char name[MODULE_NAME_MAX_LENGTH];
+    dependency_status_t status;
+} module_dependency_t;
 
 // Module Manager Status
 typedef struct {
@@ -82,6 +97,12 @@ error_code_t module_broadcast_event(system_event_t event);
 // Module Dependencies
 error_code_t module_add_dependency(const char* module_name, const char* dependency_name);
 error_code_t module_check_dependencies(const char* module_name);
+error_code_t check_and_start_dependencies(const char* module_name);
+
+// Dependency Information
+uint8_t module_get_dependency_count(const char* module_name);
+const module_dependency_t* module_get_dependencies(const char* module_name);
+dependency_status_t module_get_dependency_status(const char* module_name, const char* dependency_name);
 
 // Module Manager Status
 const module_manager_status_t* module_manager_get_status(void);

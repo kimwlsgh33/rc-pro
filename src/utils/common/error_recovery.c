@@ -1,7 +1,7 @@
-#include "error_codes.h"
-#include "../../platform/common/plat_types.h"
-#include "../../config/cfg_system.h"
+#include <stdbool.h>
 #include <string.h>
+#include "error_codes.h"
+#include "../../config/cfg_system.h"
 
 // Error Recovery Configuration
 #define MAX_RECOVERY_ATTEMPTS 3
@@ -149,48 +149,6 @@ void error_recovery_reset_stats(void) {
 }
 
 // Example recovery handlers for common errors
-static error_code_t recover_from_dma_error(error_code_t error) {
-    // Stop all DMA transfers
-    dma_stop_all_transfers();
-    
-    // Reset DMA controller
-    dma_reset_controller();
-    
-    // Reinitialize DMA
-    return dma_init();
-}
-
-static error_code_t recover_from_uart_error(error_code_t error) {
-    // Flush UART buffers
-    uart_flush_all_ports();
-    
-    // Reinitialize UART
-    return uart_init();
-}
-
-static error_code_t recover_from_timer_error(error_code_t error) {
-    // Reset timer system
-    timer_reset_all();
-    
-    // Reinitialize timers
-    return timer_init();
-}
-
-// Additional recovery handlers for various subsystems
-
-static error_code_t recover_from_timer_error_extended(error_code_t error) {
-    // Stop all active timers
-    for (int i = 0; i < MAX_SYS_TIMER; i++) {
-        timer_clear(i);
-    }
-    
-    // Reset timer system
-    timer_reset_all();
-    
-    // Reinitialize timer system
-    return timer_init();
-}
-
 static error_code_t recover_from_motor_error(error_code_t error) {
     // Emergency stop all motors
     ma_emergency_stop();
@@ -221,7 +179,7 @@ static error_code_t recover_from_event_error(error_code_t error) {
 
 static error_code_t recover_from_buffer_error(error_code_t error) {
     switch (error) {
-        case ERR_BUFFER_EMPTY:
+        case ERR_UNDERFLOW:
             // No recovery needed, just a status
             return ERROR_CODE_SUCCESS;
             
@@ -282,7 +240,7 @@ static error_code_t recover_from_adc_error(error_code_t error) {
 }
 
 // Enhanced UART Error Recovery Implementation
-static error_code_t recover_from_uart_error_extended(error_code_t error) {
+static error_code_t recover_from_uart_error(error_code_t error) {
     uint8_t error_flags = (uint8_t)error;
     error_code_t err = ERROR_CODE_SUCCESS;
     
@@ -314,7 +272,7 @@ static error_code_t recover_from_uart_error_extended(error_code_t error) {
         
         if (error_flags & UART_ERROR_DMA) {
             // Enhanced DMA recovery
-            err = recover_from_dma_error_extended(error);
+            err = recover_from_dma_error(error);
             if (err != ERROR_CODE_SUCCESS) {
                 error_record(ERR_DMA_RECOVERY);
             }
@@ -340,37 +298,7 @@ static error_code_t recover_from_uart_error_extended(error_code_t error) {
     return err;
 }
 
-static error_code_t recover_from_pwm_error(error_code_t error) {
-    uint8_t error_flags = (uint8_t)error;
-    if (error_flags & PWM_ERROR_CONFIG) {
-        // Reset PWM configuration
-        TCCR1A = 0;  // Clear all PWM settings
-        TCCR1B = 0;
-        // Reconfigure with safe values
-        TCCR1A = (1 << WGM11);
-        TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11);
-    }
-    if (error_flags & PWM_ERROR_DUTY_CYCLE) {
-        // Set safe duty cycle
-        OCR1A = ICR1 / 2;  // 50% duty cycle
-    }
-    return ERROR_CODE_SUCCESS;
-}
-
-static error_code_t recover_from_sensor_error(error_code_t error) {
-    uint8_t error_flags = (uint8_t)error;
-    if (error_flags & SENSOR_ERROR_TIMEOUT) {
-        // Reset sensor communication
-        // Implementation depends on sensor type
-    }
-    if (error_flags & SENSOR_ERROR_CALIBRATION) {
-        // Attempt sensor recalibration
-        // Implementation depends on sensor type
-    }
-    return ERROR_CODE_SUCCESS;
-}
-
-static error_code_t recover_from_dma_error_extended(error_code_t error) {
+static error_code_t recover_from_dma_error(error_code_t error) {
     uint8_t error_flags = (uint8_t)error;
     
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
@@ -414,6 +342,49 @@ static error_code_t recover_from_dma_error_extended(error_code_t error) {
         }
     }
     
+    return ERROR_CODE_SUCCESS;
+}
+
+static error_code_t recover_from_timer_error(error_code_t error) {
+    // Stop all active timers
+    for (int i = 0; i < MAX_SYS_TIMER; i++) {
+        timer_clear(i);
+    }
+    
+    // Reset timer system
+    timer_reset_all();
+    
+    // Reinitialize timer system
+    return timer_init();
+}
+
+static error_code_t recover_from_pwm_error(error_code_t error) {
+    uint8_t error_flags = (uint8_t)error;
+    if (error_flags & PWM_ERROR_CONFIG) {
+        // Reset PWM configuration
+        TCCR1A = 0;  // Clear all PWM settings
+        TCCR1B = 0;
+        // Reconfigure with safe values
+        TCCR1A = (1 << WGM11);
+        TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11);
+    }
+    if (error_flags & PWM_ERROR_DUTY_CYCLE) {
+        // Set safe duty cycle
+        OCR1A = ICR1 / 2;  // 50% duty cycle
+    }
+    return ERROR_CODE_SUCCESS;
+}
+
+static error_code_t recover_from_sensor_error(error_code_t error) {
+    uint8_t error_flags = (uint8_t)error;
+    if (error_flags & SENSOR_ERROR_TIMEOUT) {
+        // Reset sensor communication
+        // Implementation depends on sensor type
+    }
+    if (error_flags & SENSOR_ERROR_CALIBRATION) {
+        // Attempt sensor recalibration
+        // Implementation depends on sensor type
+    }
     return ERROR_CODE_SUCCESS;
 }
 
@@ -505,18 +476,15 @@ void error_recovery_register_defaults(void) {
 
 // Register additional recovery handlers
 void error_recovery_register_extended(void) {
-    error_recovery_register_handler(ERR_TIMER_ERROR, recover_from_timer_error_extended, 4);
-    error_recovery_register_handler(ERR_MOTOR_ERROR, recover_from_motor_error, 5);
-    error_recovery_register_handler(ERR_EVENT_ERROR, recover_from_event_error, 6);
-    error_recovery_register_handler(ERR_BUFFER_EMPTY, recover_from_buffer_error, 7);
-    error_recovery_register_handler(ERR_BUFFER_FULL, recover_from_buffer_error, 7);
-    error_recovery_register_handler(ERR_BUFFER_OVERFLOW, recover_from_buffer_error, 7);
-    error_recovery_register_handler(ERR_HARDWARE, recover_from_hardware_error, 8);
-    error_recovery_register_handler(ERR_ADC_ERROR, recover_from_adc_error, 9);
-    error_recovery_register_handler(ERR_UART_ERROR, recover_from_uart_error_extended, 10);
-    error_recovery_register_handler(ERR_PWM_ERROR, recover_from_pwm_error, 11);
-    error_recovery_register_handler(ERR_SENSOR_ERROR, recover_from_sensor_error, 12);
-    error_recovery_register_handler(ERR_DMA_ERROR, recover_from_dma_error_extended, 13);
-    error_recovery_register_handler(ERR_STEPPER_ERROR, recover_from_stepper_error, 14);
-    error_recovery_register_handler(ERR_POSITION_ERROR, recover_from_position_error, 15);
+    error_recovery_register_handler(ERR_MOTOR_ERROR, recover_from_motor_error, 4);
+    error_recovery_register_handler(ERR_EVENT_ERROR, recover_from_event_error, 5);
+    error_recovery_register_handler(ERR_UNDERFLOW, recover_from_buffer_error, 6);
+    error_recovery_register_handler(ERR_BUFFER_FULL, recover_from_buffer_error, 6);
+    error_recovery_register_handler(ERR_BUFFER_OVERFLOW, recover_from_buffer_error, 6);
+    error_recovery_register_handler(ERR_HARDWARE, recover_from_hardware_error, 7);
+    error_recovery_register_handler(ERR_ADC_ERROR, recover_from_adc_error, 8);
+    error_recovery_register_handler(ERR_PWM_ERROR, recover_from_pwm_error, 9);
+    error_recovery_register_handler(ERR_SENSOR_ERROR, recover_from_sensor_error, 10);
+    error_recovery_register_handler(ERR_STEPPER_ERROR, recover_from_stepper_error, 11);
+    error_recovery_register_handler(ERR_POSITION_ERROR, recover_from_position_error, 12);
 }

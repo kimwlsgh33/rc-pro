@@ -4,7 +4,6 @@
 #include "../config/cfg_system.h"
 #include "../config/cfg_debug.h"
 #include "../config/cfg_hardware.h"
-#include "../platform/common/plat_types.h"
 #include "../drivers/mcu/uart/drv_uart1.h"
 #include "../drivers/mcu/uart/drv_uart2.h"
 #include "../drivers/mcu/uart/drv_uart3.h"

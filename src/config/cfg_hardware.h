@@ -1,7 +1,6 @@
 #ifndef CFG_HARDWARE_H
 #define CFG_HARDWARE_H
 
-#include "../platform/common/plat_types.h"
 #include "cfg_debug.h"
 
 // UART Configuration
@@ -31,7 +30,7 @@ typedef struct {
     int16_t threshold;
     int16_t hysteresis;
     uint16_t debounce_ms;
-} safety_threshold_t;
+} hardware_safety_threshold_t;
 
 // Temperature Thresholds
 #define MOTOR_TEMP_WARN_C      70
@@ -52,5 +51,17 @@ typedef struct {
 #define VOLTAGE_HYSTERESIS_MV      100
 #define VOLTAGE_DEBOUNCE_MS        50
 #define VOLTAGE_SAG_THRESHOLD_MV   300
+
+// DMA Configuration
+#define DMA_ERROR_THRESHOLD     5  // Maximum errors before channel lock
+#define DMA_MAX_RETRIES        3  // Maximum retry attempts
+#define DMA_SAFETY_TIMEOUT_MS  1000  // Transfer timeout in milliseconds
+
+// EEPROM Memory Map
+#define EEPROM_START_ADDR          0x0000
+#define EEPROM_CRITICAL_DATA_ADDR  0x0000  // Start of critical data section
+#define EEPROM_CRITICAL_DATA_SIZE  64      // Size in bytes reserved for critical data
+#define EEPROM_CONFIG_ADDR         0x0040  // Start of configuration data section
+#define EEPROM_CONFIG_SIZE         64      // Size in bytes reserved for configuration
 
 #endif // CFG_HARDWARE_H

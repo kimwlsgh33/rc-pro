@@ -7,7 +7,6 @@
 #define DRV_TYPES_H
 
 #include <stdint.h>
-#include "../../platform/common/plat_types.h"
 #include "../../utils/common/error_codes.h"
 
 /**

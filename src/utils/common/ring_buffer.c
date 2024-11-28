@@ -21,7 +21,7 @@ error_code_t ring_buffer_init(ring_buffer_t *rb, uint8_t *buffer, uint16_t size)
     // Clear buffer contents
     memset(buffer, 0, size);
 
-    return ERROR_CODE_SUCCESS;
+    return ERR_SUCCESS;
 }
 
 error_code_t ring_buffer_push(ring_buffer_t *rb, uint8_t data) {
@@ -44,7 +44,7 @@ error_code_t ring_buffer_push(ring_buffer_t *rb, uint8_t data) {
     rb->count++;
 
     SREG = sreg;  // Restore interrupt state
-    return ERROR_CODE_SUCCESS;
+    return ERR_SUCCESS;
 }
 
 error_code_t ring_buffer_pop(ring_buffer_t *rb, uint8_t *data) {
@@ -57,7 +57,7 @@ error_code_t ring_buffer_pop(ring_buffer_t *rb, uint8_t *data) {
 
     if (ring_buffer_is_empty(rb)) {
         SREG = sreg;  // Restore interrupt state
-        return ERR_BUFFER_EMPTY;
+        return ERR_UNDERFLOW;
     }
 
     // Retrieve data and update tail pointer atomically
@@ -67,7 +67,7 @@ error_code_t ring_buffer_pop(ring_buffer_t *rb, uint8_t *data) {
     rb->count--;
 
     SREG = sreg;  // Restore interrupt state
-    return ERROR_CODE_SUCCESS;
+    return ERR_SUCCESS;
 }
 
 bool ring_buffer_is_empty(const ring_buffer_t *rb) {

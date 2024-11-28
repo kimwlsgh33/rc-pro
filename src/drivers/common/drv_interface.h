@@ -7,15 +7,7 @@
 #define DRV_INTERFACE_H
 
 #include "../../utils/common/error_codes.h"
-
-/**
- * @brief Generic driver configuration structure
- * This should be cast to the appropriate driver-specific config
- */
-typedef struct {
-    uint32_t version;    // Driver version
-    void* config;        // Driver specific configuration
-} driver_config_t;
+#include "../common/drv_types.h"  // Include the comprehensive driver_config_t definition
 
 /**
  * @brief Generic driver status structure

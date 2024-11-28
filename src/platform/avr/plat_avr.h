@@ -1,8 +1,8 @@
 #ifndef PLAT_AVR_H
 #define PLAT_AVR_H
 
-#include "../common/plat_types.h"
 #include "../../config/cfg_system.h"
+#include "../../utils/common/error_codes.h"
 
 // AVR-specific includes
 #include <avr/io.h>
@@ -35,6 +35,15 @@ void plat_avr_watchdog_reset(void);
 // Memory management
 uint16_t plat_avr_get_stack_pointer(void);
 uint16_t plat_avr_get_free_ram(void);
+
+// EEPROM management
+/**
+ * @brief Platform EEPROM functions
+ */
+error_code_t plat_avr_eeprom_write(uint16_t addr, const void *data, size_t size);
+error_code_t plat_avr_eeprom_read(uint16_t addr, void *data, size_t size);
+error_code_t plat_avr_eeprom_write_byte(uint16_t addr, uint8_t data);
+error_code_t plat_avr_eeprom_read_byte(uint16_t addr, uint8_t *data);
 
 // System control
 void plat_avr_soft_reset(void);

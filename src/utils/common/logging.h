@@ -1,7 +1,6 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
-#include "../../config/build_config.h"
 #include "error_codes.h"
 
 // Log Levels

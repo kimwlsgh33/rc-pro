@@ -7,7 +7,6 @@
 #define MCU_TYPES_H
 
 #include <stdint.h>
-#include "../../../platform/common/plat_types.h"
 
 /**
  * @brief MCU clock sources

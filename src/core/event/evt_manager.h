@@ -2,7 +2,6 @@
 #define EVT_MANAGER_H
 
 #include "../../config/cfg_system.h"
-#include "../../platform/common/plat_types.h"
 #include "../../utils/common/error_codes.h"
 
 // Event Configuration

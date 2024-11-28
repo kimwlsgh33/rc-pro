@@ -11,16 +11,20 @@
 
 // System Clock Configuration
 #define SYSTEM_CLOCK_HZ     16000000UL   // 16MHz system clock
+#define F_CPU               SYSTEM_CLOCK_HZ  // CPU frequency for AVR toolchain
 #define EXTERNAL_CRYSTAL_FREQ_HZ SYSTEM_CLOCK_HZ
+#define CFG_SYS_FREQ SYSTEM_CLOCK_HZ     // System frequency for validation
 
-// Timer Configuration
-#define TIMER_PRESCALER     64           // Timer1 prescaler value
-#define TIMER_COMPARE_VALUE 250          // For 1ms interval (16MHz/64/250 = 1kHz)
+// Timer System Configuration
+#define MAX_SYS_TIMER       16           // Maximum number of software timers
 #define TIMER_MIN_FREQ      100          // Minimum timer frequency in Hz
 #define TIMER_MAX_FREQ      100000       // Maximum timer frequency in Hz
-#define MAX_SYS_TIMER       16           // Maximum number of software timers
 #define TIMER_MIN_INTERVAL  1            // Minimum timer interval in ms
 #define TIMER_MAX_INTERVAL  0xFFFFFFFF   // Maximum timer interval in ms
+
+// Timer Hardware Configuration
+#define TIMER_PRESCALER     64           // Timer1 prescaler value
+#define TIMER_COMPARE_VALUE 250          // For 1ms interval (16MHz/64/250 = 1kHz)
 
 // Safety Configuration
 #define WATCHDOG_TIMEOUT    WDTO_250MS   // 250ms watchdog timeout
